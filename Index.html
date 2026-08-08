@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>色彩小實驗室</title>
+<style>
+:root{
+  --ink:#2c3140; --soft:#f7f5ef; --card:#fff; --line:#e8e2d8;
+  --shadow:0 10px 28px rgba(54,48,38,.10);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0; color:var(--ink); background:
+  radial-gradient(circle at 12% 8%,#fff8dc 0 8%,transparent 9%),
+  radial-gradient(circle at 90% 18%,#e9f6ff 0 9%,transparent 10%),
+  linear-gradient(180deg,#fffdf7,#f7fbff);
+  font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
+  min-height:100vh;
+}
+button{font:inherit}
+.app{max-width:720px;margin:auto;padding:18px 16px 34px}
+header{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  margin-bottom:14px
+}
+.title h1{font-size:clamp(24px,6vw,38px);margin:0;font-weight:900;letter-spacing:.04em}
+.title p{margin:4px 0 0;color:#73798a;font-weight:700}
+.badge{background:#fff;border:2px solid var(--line);box-shadow:var(--shadow);padding:9px 12px;border-radius:999px;font-weight:900}
+.tabs{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 16px
+}
+.tab{
+  border:0;border-radius:18px;padding:12px 6px;background:#fff;box-shadow:var(--shadow);
+  color:#666;font-weight:900;cursor:pointer
+}
+.tab.active{background:#2f3545;color:#fff}
+.panel{display:none}
+.panel.active{display:block}
+.card{
+  background:rgba(255,255,255,.94);border:2px solid #eee9df;border-radius:28px;
+  box-shadow:var(--shadow);padding:18px
+}
+.section-title{font-size:22px;font-weight:900;margin:0 0 4px}
+.hint{margin:0 0 14px;color:#777f90;font-weight:700}
+.color-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.color-btn{
+  position:relative;border:0;border-radius:24px;aspect-ratio:1/1;padding:10px;
+  box-shadow:0 6px 0 rgba(0,0,0,.09);cursor:pointer;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transform:translateY(0);transition:.12s
+}
+.color-btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.09)}
+.color-btn .face{font-size:32px;line-height:1}
+.color-btn strong{font-size:20px;margin-top:8px}
+.color-btn small{font-size:13px;font-weight:900;opacity:.75;margin-top:2px}
+.speak{position:absolute;right:8px;top:8px;background:rgba(255,255,255,.72);border:0;border-radius:999px;width:32px;height:32px;font-size:16px}
+.mix-stage{
+  display:grid;grid-template-columns:1fr 70px 1fr 70px 1fr;align-items:center;gap:7px;
+  margin:12px 0 18px
+}
+.mix-slot,.mix-result{
+  min-height:130px;border-radius:28px;border:3px dashed #ddd5c8;
+  display:flex;align-items:center;justify-content:center;text-align:center;font-weight:900;
+  background:#fff
+}
+.mix-result{border-style:solid;transition:.25s}
+.symbol{font-size:34px;text-align:center;font-weight:900}
+.palette{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.swatch{
+  border:0;border-radius:18px;padding:14px 6px;font-weight:900;cursor:pointer;
+  box-shadow:0 5px 0 rgba(0,0,0,.09)
+}
+.mix-actions{display:flex;justify-content:center;gap:10px;margin-top:14px}
+.secondary{
+  border:2px solid #ddd6c9;background:#fff;border-radius:999px;padding:10px 16px;font-weight:900
+}
+.quiz-box{text-align:center}
+.equation{display:flex;align-items:center;justify-content:center;gap:10px;margin:12px 0 18px}
+.dot{width:78px;height:78px;border-radius:24px;box-shadow:inset 0 -8px 0 rgba(0,0,0,.07)}
+.quiz-op{font-size:34px;font-weight:900}
+.answers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.answer{
+  border:3px solid transparent;border-radius:24px;padding:14px 8px;background:#fff;box-shadow:var(--shadow);
+  font-weight:900;cursor:pointer
+}
+.answer .answer-dot{width:62px;height:62px;border-radius:50%;margin:0 auto 8px}
+.answer.good{border-color:#59b66d;animation:pop .28s ease}
+.answer.bad{border-color:#e57373;animation:shake .28s ease}
+@keyframes pop{50%{transform:scale(1.08)}}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.feedback{min-height:34px;font-size:20px;font-weight:900;margin:12px 0 4px}
+.progress{height:12px;border-radius:999px;background:#eee9e0;overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:#2f3545;transition:.25s}
+.match-head{display:flex;gap:12px;align-items:center;justify-content:center;margin-bottom:14px}
+.target-dot{width:68px;height:68px;border-radius:22px;box-shadow:inset 0 -7px 0 rgba(0,0,0,.08)}
+.objects{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.obj{
+  border:2px solid #eee8df;background:#fff;border-radius:22px;padding:12px 6px;min-height:112px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;
+  box-shadow:var(--shadow)
+}
+.obj .emoji{font-size:42px}.obj span{font-weight:900;margin-top:5px}
+.obj.done{opacity:.3;pointer-events:none}.obj.good{outline:4px solid #73c982}.obj.bad{animation:shake .28s}
+.footer-note{text-align:center;color:#8a8f9d;font-size:13px;font-weight:700;margin-top:14px}
+@media(max-width:560px){
+  .mix-stage{grid-template-columns:1fr 44px 1fr;grid-template-areas:"a plus b" "eq eq eq" "result result result"}
+  #slotA{grid-area:a} #slotB{grid-area:b}.plus{grid-area:plus}.equals{grid-area:eq;display:none}#mixResult{grid-area:result;min-height:100px}
+  .palette{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="title">
+      <h1>🎨 色彩小實驗室</h1>
+      <p>認顏色・玩混色・做配對</p>
+    </div>
+    <div class="badge">⭐ <span id="score">0</span></div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="learn">認識顏色</button>
+    <button class="tab" data-tab="mix">顏色混合</button>
+    <button class="tab" data-tab="match">色彩配對</button>
+  </div>
+
+  <section id="learn" class="panel active">
+    <div class="card">
+      <h2 class="section-title">點一點，認識顏色</h2>
+      <p class="hint">點色卡會念出「中文＋英文」。</p>
+      <div class="color-grid" id="colorGrid"></div>
+    </div>
+  </section>
+
+  <section id="mix" class="panel">
+    <div class="card">
+      <h2 class="section-title">兩種顏色會變成什麼？</h2>
+      <p class="hint">依序選兩個顏色，看看混色結果。</p>
+      <div class="mix-stage">
+        <div class="mix-slot" id="slotA">選第 1 色</div>
+        <div class="symbol plus">＋</div>
+        <div class="mix-slot" id="slotB">選第 2 色</div>
+        <div class="symbol equals">＝</div>
+        <div class="mix-result" id="mixResult">？</div>
+      </div>
+      <div class="palette" id="palette"></div>
+      <div class="mix-actions">
+        <button class="secondary" id="resetMix">重新選色</button>
+        <button class="secondary" id="quizBtn">出一題考我</button>
+      </div>
+    </div>
+    <div class="card" id="quizCard" style="margin-top:14px;display:none">
+      <div class="quiz-box">
+        <h2 class="section-title">混色小挑戰</h2>
+        <div class="equation" id="equation"></div>
+        <div class="answers" id="answers"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="progress"><i id="progressBar"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="match" class="panel">
+    <div class="card">
+      <h2 class="section-title">找出同色的東西</h2>
+      <p class="hint">看目標顏色，點出一樣顏色的圖案。</p>
+      <div class="match-head">
+        <div class="target-dot" id="targetDot"></div>
+        <div><b id="targetName" style="font-size:22px"></b><br><span style="color:#888;font-weight:800">請找一個同色物品</span></div>
+      </div>
+      <div class="objects" id="objects"></div>
+      <div class="feedback" id="matchFeedback"></div>
+      <button class="secondary" id="newMatch">換一題</button>
+    </div>
+  </section>
+  <div class="footer-note">單機可用，不需要網路。適合手機／平板觸控。</div>
+</div>
+
+<script>
+const COLORS = {
+  red:{zh:'紅色',en:'Red',hex:'#F0445A',text:'#fff'},
+  yellow:{zh:'黃色',en:'Yellow',hex:'#F6C83E',text:'#3b3422'},
+  blue:{zh:'藍色',en:'Blue',hex:'#3C82E8',text:'#fff'},
+  orange:{zh:'橘色',en:'Orange',hex:'#F39A34',text:'#402d17'},
+  green:{zh:'綠色',en:'Green',hex:'#4DA66A',text:'#fff'},
+  purple:{zh:'紫色',en:'Purple',hex:'#7753B6',text:'#fff'}
+};
+const MIX = {
+  'red+yellow':'orange','yellow+red':'orange',
+  'yellow+blue':'green','blue+yellow':'green',
+  'red+blue':'purple','blue+red':'purple'
+};
+let score=0, mixPick=[], qCount=0, currentMatch=null;
+
+function speakColor(key){
+  const c=COLORS[key];
+  if(!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const z=new SpeechSynthesisUtterance(c.zh); z.lang='zh-TW'; z.rate=.85;
+  const e=new SpeechSynthesisUtterance(c.en); e.lang='en-US'; e.rate=.75;
+  speechSynthesis.speak(z); speechSynthesis.speak(e);
+}
+function renderColors(){
+  const g=document.querySelector('#colorGrid'), p=document.querySelector('#palette');
+  Object.entries(COLORS).forEach(([k,c])=>{
+    const b=document.createElement('button');
+    b.className='color-btn'; b.style.background=c.hex; b.style.color=c.text;
+    b.innerHTML=`<button class="speak" aria-label="發音">🔊</button><div class="face">●‿●</div><strong>${c.zh}</strong><small>${c.en}</small>`;
+    b.onclick=(ev)=>{ if(ev.target.classList.contains('speak')) ev.stopPropagation(); speakColor(k); };
+    g.appendChild(b);
+
+    if(['red','yellow','blue'].includes(k)){
+      const s=document.createElement('button'); s.className='swatch';
+      s.style.background=c.hex; s.style.color=c.text; s.textContent=c.zh;
+      s.onclick=()=>pickMix(k); p.appendChild(s);
+    }
+  });
+}
+function slotHTML(key){
+  const c=COLORS[key];
+  return `<div style="width:88%;height:94px;border-radius:22px;background:${c.hex};display:flex;align-items:center;justify-content:center;color:${c.text};font-size:20px;font-weight:900">${c.zh}</div>`;
+}
+function pickMix(key){
+  if(mixPick.length>=2) mixPick=[];
+  mixPick.push(key);
+  document.querySelector('#slotA').innerHTML=mixPick[0]?slotHTML(mixPick[0]):'選第 1 色';
+  document.querySelector('#slotB').innerHTML=mixPick[1]?slotHTML(mixPick[1]):'選第 2 色';
+  const r=document.querySelector('#mixResult');
+  if(mixPick.length===2){
+    const result=MIX[mixPick.join('+')];
+    if(result){
+      const c=COLORS[result]; r.style.background=c.hex;r.style.color=c.text;
+      r.innerHTML=`<div><div style="font-size:28px">✨ ${c.zh}</div><div style="font-size:16px">${c.en}</div></div>`;
+      speakColor(result);
+    }else{
+      r.style.background='#fff';r.style.color='#333';r.textContent='試試不同的兩種顏色';
+    }
+  }else{ r.style.background='#fff';r.style.color='#333';r.textContent='？'; }
+}
+document.querySelector('#resetMix').onclick=()=>{mixPick=[];document.querySelector('#slotA').textContent='選第 1 色';document.querySelector('#slotB').textContent='選第 2 色';const r=document.querySelector('#mixResult');r.textContent='？';r.style.background='#fff';r.style.color='#333'};
+
+const quizPairs=[['red','yellow'],['yellow','blue'],['red','blue']];
+function newQuiz(){
+  document.querySelector('#quizCard').style.display='block';
+  document.querySelector('#feedback').textContent='';
+  const pair=quizPairs[Math.floor(Math.random()*quizPairs.length)];
+  const result=MIX[pair.join('+')];
+  const eq=document.querySelector('#equation');
+  eq.innerHTML=`<div class="dot" style="background:${COLORS[pair[0]].hex}"></div><div class="quiz-op">＋</div><div class="dot" style="background:${COLORS[pair[1]].hex}"></div><div class="quiz-op">＝ ?</div>`;
+  const opts=['orange','green','purple'].sort(()=>Math.random()-.5);
+  const box=document.querySelector('#answers'); box.innerHTML='';
+  opts.forEach(k=>{
+    const b=document.createElement('button'); b.className='answer';
+    b.innerHTML=`<div class="answer-dot" style="background:${COLORS[k].hex}"></div>${COLORS[k].zh}<br><small>${COLORS[k].en}</small>`;
+    b.onclick=()=>{
+      [...box.children].forEach(x=>x.disabled=true);
+      if(k===result){
+        b.classList.add('good'); document.querySelector('#feedback').textContent='答對了！太棒了 🎉';
+        score++; qCount++; document.querySelector('#score').textContent=score;
+        document.querySelector('#progressBar').style.width=(Math.min(qCount,5)/5*100)+'%';
+        speakColor(result); setTimeout(newQuiz,900);
+      }else{
+        b.classList.add('bad');document.querySelector('#feedback').textContent='再想一下：看看兩個顏色混在一起會變什麼？';
+        setTimeout(()=>{[...box.children].forEach(x=>x.disabled=false);b.classList.remove('bad')},600);
+      }
+    }; box.appendChild(b);
+  });
+}
+document.querySelector('#quizBtn').onclick=newQuiz;
+
+const OBJECTS = [
+ {e:'🍎',name:'蘋果',c:'red'},{e:'🍓',name:'草莓',c:'red'},
+ {e:'🌞',name:'太陽',c:'yellow'},{e:'🍌',name:'香蕉',c:'yellow'},
+ {e:'🐳',name:'鯨魚',c:'blue'},{e:'💧',name:'水滴',c:'blue'},
+ {e:'🍊',name:'橘子',c:'orange'},{e:'🥕',name:'紅蘿蔔',c:'orange'},
+ {e:'🐢',name:'烏龜',c:'green'},{e:'🍀',name:'幸運草',c:'green'},
+ {e:'🍇',name:'葡萄',c:'purple'},{e:'☂️',name:'雨傘',c:'purple'}
+];
+function newMatch(){
+  const keys=Object.keys(COLORS);
+  currentMatch=keys[Math.floor(Math.random()*keys.length)];
+  const c=COLORS[currentMatch];
+  document.querySelector('#targetDot').style.background=c.hex;
+  document.querySelector('#targetName').textContent=`${c.zh} ${c.en}`;
+  document.querySelector('#matchFeedback').textContent='';
+  const candidates=[
+    ...OBJECTS.filter(x=>x.c===currentMatch).sort(()=>Math.random()-.5).slice(0,1),
+    ...OBJECTS.filter(x=>x.c!==currentMatch).sort(()=>Math.random()-.5).slice(0,5)
+  ].sort(()=>Math.random()-.5);
+  const box=document.querySelector('#objects');box.innerHTML='';
+  candidates.forEach(o=>{
+    const b=document.createElement('button');b.className='obj';
+    b.innerHTML=`<div class="emoji">${o.e}</div><span>${o.name}</span>`;
+    b.onclick=()=>{
+      if(o.c===currentMatch){
+        b.classList.add('good','done');score++;document.querySelector('#score').textContent=score;
+        document.querySelector('#matchFeedback').textContent='找到了！顏色一樣 🎉';speakColor(currentMatch);
+        setTimeout(newMatch,900);
+      }else{
+        b.classList.add('bad');document.querySelector('#matchFeedback').textContent='這個顏色不一樣，再找找看。';
+        setTimeout(()=>b.classList.remove('bad'),450);
+      }
+    };box.appendChild(b);
+  });
+}
+document.querySelector('#newMatch').onclick=newMatch;
+
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelector('#'+t.dataset.tab).classList.add('active');
+});
+renderColors();newMatch();
+</script>
+</body>
+</html>
