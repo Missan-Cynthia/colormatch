@@ -1,318 +1,448 @@
-<!doctype html>
-<html lang="zh-Hant">
+<!DOCTYPE html>
+<html lang="zh-TW">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>色彩小實驗室</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#fff9f3">
+<title>我的色彩環</title>
 <style>
-:root{
-  --ink:#2c3140; --soft:#f7f5ef; --card:#fff; --line:#e8e2d8;
-  --shadow:0 10px 28px rgba(54,48,38,.10);
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{
-  margin:0; color:var(--ink); background:
-  radial-gradient(circle at 12% 8%,#fff8dc 0 8%,transparent 9%),
-  radial-gradient(circle at 90% 18%,#e9f6ff 0 9%,transparent 10%),
-  linear-gradient(180deg,#fffdf7,#f7fbff);
-  font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;
-  min-height:100vh;
-}
-button{font:inherit}
-.app{max-width:720px;margin:auto;padding:18px 16px 34px}
-header{
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  margin-bottom:14px
-}
-.title h1{font-size:clamp(24px,6vw,38px);margin:0;font-weight:900;letter-spacing:.04em}
-.title p{margin:4px 0 0;color:#73798a;font-weight:700}
-.badge{background:#fff;border:2px solid var(--line);box-shadow:var(--shadow);padding:9px 12px;border-radius:999px;font-weight:900}
-.tabs{
-  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 16px
-}
-.tab{
-  border:0;border-radius:18px;padding:12px 6px;background:#fff;box-shadow:var(--shadow);
-  color:#666;font-weight:900;cursor:pointer
-}
-.tab.active{background:#2f3545;color:#fff}
-.panel{display:none}
-.panel.active{display:block}
-.card{
-  background:rgba(255,255,255,.94);border:2px solid #eee9df;border-radius:28px;
-  box-shadow:var(--shadow);padding:18px
-}
-.section-title{font-size:22px;font-weight:900;margin:0 0 4px}
-.hint{margin:0 0 14px;color:#777f90;font-weight:700}
-.color-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.color-btn{
-  position:relative;border:0;border-radius:24px;aspect-ratio:1/1;padding:10px;
-  box-shadow:0 6px 0 rgba(0,0,0,.09);cursor:pointer;overflow:hidden;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  transform:translateY(0);transition:.12s
-}
-.color-btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.09)}
-.color-btn .face{font-size:32px;line-height:1}
-.color-btn strong{font-size:20px;margin-top:8px}
-.color-btn small{font-size:13px;font-weight:900;opacity:.75;margin-top:2px}
-.speak{position:absolute;right:8px;top:8px;background:rgba(255,255,255,.72);border:0;border-radius:999px;width:32px;height:32px;font-size:16px}
-.mix-stage{
-  display:grid;grid-template-columns:1fr 70px 1fr 70px 1fr;align-items:center;gap:7px;
-  margin:12px 0 18px
-}
-.mix-slot,.mix-result{
-  min-height:130px;border-radius:28px;border:3px dashed #ddd5c8;
-  display:flex;align-items:center;justify-content:center;text-align:center;font-weight:900;
-  background:#fff
-}
-.mix-result{border-style:solid;transition:.25s}
-.symbol{font-size:34px;text-align:center;font-weight:900}
-.palette{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.swatch{
-  border:0;border-radius:18px;padding:14px 6px;font-weight:900;cursor:pointer;
-  box-shadow:0 5px 0 rgba(0,0,0,.09)
-}
-.mix-actions{display:flex;justify-content:center;gap:10px;margin-top:14px}
-.secondary{
-  border:2px solid #ddd6c9;background:#fff;border-radius:999px;padding:10px 16px;font-weight:900
-}
-.quiz-box{text-align:center}
-.equation{display:flex;align-items:center;justify-content:center;gap:10px;margin:12px 0 18px}
-.dot{width:78px;height:78px;border-radius:24px;box-shadow:inset 0 -8px 0 rgba(0,0,0,.07)}
-.quiz-op{font-size:34px;font-weight:900}
-.answers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.answer{
-  border:3px solid transparent;border-radius:24px;padding:14px 8px;background:#fff;box-shadow:var(--shadow);
-  font-weight:900;cursor:pointer
-}
-.answer .answer-dot{width:62px;height:62px;border-radius:50%;margin:0 auto 8px}
-.answer.good{border-color:#59b66d;animation:pop .28s ease}
-.answer.bad{border-color:#e57373;animation:shake .28s ease}
-@keyframes pop{50%{transform:scale(1.08)}}
-@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-.feedback{min-height:34px;font-size:20px;font-weight:900;margin:12px 0 4px}
-.progress{height:12px;border-radius:999px;background:#eee9e0;overflow:hidden}
-.progress i{display:block;height:100%;width:0;background:#2f3545;transition:.25s}
-.match-head{display:flex;gap:12px;align-items:center;justify-content:center;margin-bottom:14px}
-.target-dot{width:68px;height:68px;border-radius:22px;box-shadow:inset 0 -7px 0 rgba(0,0,0,.08)}
-.objects{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.obj{
-  border:2px solid #eee8df;background:#fff;border-radius:22px;padding:12px 6px;min-height:112px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;
-  box-shadow:var(--shadow)
-}
-.obj .emoji{font-size:42px}.obj span{font-weight:900;margin-top:5px}
-.obj.done{opacity:.3;pointer-events:none}.obj.good{outline:4px solid #73c982}.obj.bad{animation:shake .28s}
-.footer-note{text-align:center;color:#8a8f9d;font-size:13px;font-weight:700;margin-top:14px}
-@media(max-width:560px){
-  .mix-stage{grid-template-columns:1fr 44px 1fr;grid-template-areas:"a plus b" "eq eq eq" "result result result"}
-  #slotA{grid-area:a} #slotB{grid-area:b}.plus{grid-area:plus}.equals{grid-area:eq;display:none}#mixResult{grid-area:result;min-height:100px}
-  .palette{grid-template-columns:repeat(2,1fr)}
-}
+  :root{
+    --ink:#2f3040;
+    --muted:#7a7d8b;
+    --paper:#fff9f3;
+    --card:#ffffff;
+    --line:#eee5dc;
+    --shadow:0 14px 34px rgba(69,52,36,.10);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;min-height:100%;background:linear-gradient(180deg,#fffaf4,#f6fbff);font-family:"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;color:var(--ink)}
+  body{min-height:100dvh;display:flex;justify-content:center}
+  button{font:inherit}
+  .app{width:min(100%,760px);padding:18px 16px 30px}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+  h1{font-size:clamp(28px,6vw,42px);margin:0;font-weight:900;letter-spacing:.03em}
+  .sub{margin:4px 0 0;color:var(--muted);font-weight:700}
+  .reset{
+    border:2px solid var(--line);background:#fff;border-radius:999px;padding:10px 14px;
+    font-weight:900;color:#555;box-shadow:var(--shadow);white-space:nowrap
+  }
+  .status{
+    background:rgba(255,255,255,.94);border:2px solid var(--line);border-radius:22px;
+    padding:11px 14px;margin:12px 0 14px;box-shadow:var(--shadow);text-align:center;
+    font-size:17px;font-weight:900
+  }
+  .status small{display:block;color:var(--muted);font-size:13px;margin-top:3px}
+  .wheel-card{
+    position:relative;background:rgba(255,255,255,.94);border:2px solid var(--line);
+    border-radius:32px;box-shadow:var(--shadow);padding:14px;overflow:hidden
+  }
+  .wheel{
+    width:min(92vw,620px);aspect-ratio:1;margin:auto;position:relative;border-radius:50%;
+  }
+  .guide{
+    position:absolute;inset:14%;border:3px dashed #eee9e3;border-radius:50%;
+  }
+  .center{
+    position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:38%;aspect-ratio:1;border-radius:50%;background:#fff;border:3px solid #efe7df;
+    box-shadow:0 10px 28px rgba(0,0,0,.08);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;text-align:center;padding:12px;z-index:4;
+    transition:.25s
+  }
+  .center .formula{font-size:clamp(18px,4vw,27px);font-weight:900;line-height:1.25}
+  .center .result{font-size:clamp(15px,3.7vw,22px);font-weight:900;margin-top:6px}
+  .center .mini{font-size:12px;color:#888;font-weight:800;margin-top:5px}
+  .node{
+    position:absolute;left:50%;top:50%;width:clamp(62px,16vw,94px);aspect-ratio:1;
+    border-radius:50%;border:5px solid #fff;box-shadow:0 9px 18px rgba(0,0,0,.12);
+    transform:translate(-50%,-50%) translate(var(--x),var(--y)) scale(.4);
+    opacity:0;pointer-events:none;display:flex;align-items:center;justify-content:center;
+    cursor:pointer;transition:opacity .35s, transform .35s, box-shadow .18s, outline .18s;
+    color:white;font-weight:900;text-shadow:0 1px 3px rgba(0,0,0,.28);text-align:center;
+    padding:6px;z-index:5;
+  }
+  .node.visible{opacity:1;pointer-events:auto;transform:translate(-50%,-50%) translate(var(--x),var(--y)) scale(1)}
+  .node.selected{outline:6px solid #333;outline-offset:3px;box-shadow:0 0 0 8px rgba(255,255,255,.9),0 12px 26px rgba(0,0,0,.18)}
+  .node .zh{display:block;font-size:clamp(13px,3vw,18px);line-height:1.05}
+  .node .en{display:block;font-size:clamp(9px,2.3vw,12px);opacity:.9;margin-top:2px}
+  .node.light{color:#4b443a;text-shadow:none}
+  .node.pop{animation:birth .75s cubic-bezier(.2,.8,.2,1)}
+  @keyframes birth{
+    0%{filter:brightness(1.4);transform:translate(-50%,-50%) translate(var(--x),var(--y)) scale(.15) rotate(-18deg)}
+    65%{transform:translate(-50%,-50%) translate(var(--x),var(--y)) scale(1.18) rotate(7deg)}
+    100%{transform:translate(-50%,-50%) translate(var(--x),var(--y)) scale(1) rotate(0)}
+  }
+  .spark{
+    position:fixed;font-size:24px;pointer-events:none;z-index:999;animation:spark .8s ease-out forwards
+  }
+  @keyframes spark{to{transform:translate(var(--dx),var(--dy)) rotate(240deg);opacity:0}}
+  .helper{
+    margin-top:14px;background:#fff;border:2px solid var(--line);border-radius:24px;
+    box-shadow:var(--shadow);padding:14px
+  }
+  .helper-title{font-weight:900;font-size:18px;margin-bottom:8px}
+  .tips{display:flex;gap:8px;flex-wrap:wrap}
+  .tip{
+    border:2px solid #eee6de;background:#fff;border-radius:999px;padding:8px 11px;
+    font-size:13px;font-weight:900;color:#666
+  }
+  .toast{
+    position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
+    background:#2f3040;color:#fff;padding:12px 18px;border-radius:999px;font-weight:900;
+    opacity:0;pointer-events:none;transition:.2s;z-index:9999;white-space:nowrap;max-width:90vw;text-align:center
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .complete{
+    position:fixed;inset:0;background:rgba(255,255,255,.86);backdrop-filter:blur(8px);
+    display:none;align-items:center;justify-content:center;z-index:999;padding:24px
+  }
+  .complete.show{display:flex}
+  .complete-box{
+    width:min(92vw,460px);background:#fff;border-radius:32px;padding:28px;text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,.16);border:2px solid var(--line)
+  }
+  .complete h2{font-size:32px;margin:0 0 8px}.complete p{color:#666;font-weight:800}
+  .again{border:0;background:#2f3040;color:#fff;border-radius:999px;padding:14px 22px;font-weight:900;font-size:18px}
+  @media(max-width:480px){
+    .app{padding-left:10px;padding-right:10px}
+    .wheel-card{padding:8px;border-radius:26px}
+    .wheel{width:94vw}
+    .center{width:35%}
+    .node{border-width:4px}
+  }
 </style>
 </head>
 <body>
 <div class="app">
   <header>
-    <div class="title">
-      <h1>🎨 色彩小實驗室</h1>
-      <p>認顏色・玩混色・做配對</p>
+    <div>
+      <h1>🎨 我的色彩環</h1>
+      <p class="sub">從紅、黃、藍開始，把色彩一個個變出來。</p>
     </div>
-    <div class="badge">⭐ <span id="score">0</span></div>
+    <button class="reset" id="resetBtn">重新開始</button>
   </header>
 
-  <div class="tabs">
-    <button class="tab active" data-tab="learn">認識顏色</button>
-    <button class="tab" data-tab="mix">顏色混合</button>
-    <button class="tab" data-tab="match">色彩配對</button>
+  <div class="status" id="status">
+    先選兩個顏色
+    <small>試試看：紅＋黃、黃＋藍、藍＋紅</small>
   </div>
 
-  <section id="learn" class="panel active">
-    <div class="card">
-      <h2 class="section-title">點一點，認識顏色</h2>
-      <p class="hint">點色卡會念出「中文＋英文」。</p>
-      <div class="color-grid" id="colorGrid"></div>
-    </div>
-  </section>
-
-  <section id="mix" class="panel">
-    <div class="card">
-      <h2 class="section-title">兩種顏色會變成什麼？</h2>
-      <p class="hint">依序選兩個顏色，看看混色結果。</p>
-      <div class="mix-stage">
-        <div class="mix-slot" id="slotA">選第 1 色</div>
-        <div class="symbol plus">＋</div>
-        <div class="mix-slot" id="slotB">選第 2 色</div>
-        <div class="symbol equals">＝</div>
-        <div class="mix-result" id="mixResult">？</div>
-      </div>
-      <div class="palette" id="palette"></div>
-      <div class="mix-actions">
-        <button class="secondary" id="resetMix">重新選色</button>
-        <button class="secondary" id="quizBtn">出一題考我</button>
-      </div>
-    </div>
-    <div class="card" id="quizCard" style="margin-top:14px;display:none">
-      <div class="quiz-box">
-        <h2 class="section-title">混色小挑戰</h2>
-        <div class="equation" id="equation"></div>
-        <div class="answers" id="answers"></div>
-        <div class="feedback" id="feedback"></div>
-        <div class="progress"><i id="progressBar"></i></div>
+  <section class="wheel-card">
+    <div class="wheel" id="wheel">
+      <div class="guide"></div>
+      <div class="center" id="center">
+        <div class="formula" id="formula">點兩個顏色</div>
+        <div class="result" id="resultText">看看會變出什麼？</div>
+        <div class="mini" id="miniText">一次選兩個</div>
       </div>
     </div>
   </section>
 
-  <section id="match" class="panel">
-    <div class="card">
-      <h2 class="section-title">找出同色的東西</h2>
-      <p class="hint">看目標顏色，點出一樣顏色的圖案。</p>
-      <div class="match-head">
-        <div class="target-dot" id="targetDot"></div>
-        <div><b id="targetName" style="font-size:22px"></b><br><span style="color:#888;font-weight:800">請找一個同色物品</span></div>
-      </div>
-      <div class="objects" id="objects"></div>
-      <div class="feedback" id="matchFeedback"></div>
-      <button class="secondary" id="newMatch">換一題</button>
-    </div>
+  <section class="helper">
+    <div class="helper-title">怎麼玩？</div>
+    <div class="tips" id="tips"></div>
   </section>
-  <div class="footer-note">單機可用，不需要網路。適合手機／平板觸控。</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="complete" id="complete">
+  <div class="complete-box">
+    <div style="font-size:58px">🌈</div>
+    <h2>你完成 12 色環了！</h2>
+    <p>從三原色開始，你把所有顏色都找出來了。</p>
+    <button class="again" onclick="resetGame()">再玩一次</button>
+  </div>
 </div>
 
 <script>
-const COLORS = {
-  red:{zh:'紅色',en:'Red',hex:'#F0445A',text:'#fff'},
-  yellow:{zh:'黃色',en:'Yellow',hex:'#F6C83E',text:'#3b3422'},
-  blue:{zh:'藍色',en:'Blue',hex:'#3C82E8',text:'#fff'},
-  orange:{zh:'橘色',en:'Orange',hex:'#F39A34',text:'#402d17'},
-  green:{zh:'綠色',en:'Green',hex:'#4DA66A',text:'#fff'},
-  purple:{zh:'紫色',en:'Purple',hex:'#7753B6',text:'#fff'}
-};
-const MIX = {
-  'red+yellow':'orange','yellow+red':'orange',
-  'yellow+blue':'green','blue+yellow':'green',
-  'red+blue':'purple','blue+red':'purple'
-};
-let score=0, mixPick=[], qCount=0, currentMatch=null;
+const colors = [
+  {id:'red',zh:'紅',en:'Red',hex:'#F44336',light:false},
+  {id:'redOrange',zh:'紅橘',en:'Red Orange',hex:'#F0642F',light:false},
+  {id:'orange',zh:'橘',en:'Orange',hex:'#F7931E',light:false},
+  {id:'yellowOrange',zh:'黃橘',en:'Yellow Orange',hex:'#F7B733',light:true},
+  {id:'yellow',zh:'黃',en:'Yellow',hex:'#FFD93D',light:true},
+  {id:'yellowGreen',zh:'黃綠',en:'Yellow Green',hex:'#A8D64F',light:true},
+  {id:'green',zh:'綠',en:'Green',hex:'#43A047',light:false},
+  {id:'blueGreen',zh:'藍綠',en:'Blue Green',hex:'#18A6A6',light:false},
+  {id:'blue',zh:'藍',en:'Blue',hex:'#3478F6',light:false},
+  {id:'bluePurple',zh:'藍紫',en:'Blue Violet',hex:'#5D5FEF',light:false},
+  {id:'purple',zh:'紫',en:'Violet',hex:'#8E44AD',light:false},
+  {id:'redPurple',zh:'紅紫',en:'Red Violet',hex:'#C4458F',light:false}
+];
 
-function speakColor(key){
-  const c=COLORS[key];
+const primary = ['red','yellow','blue'];
+const secondary = ['orange','green','purple'];
+const tertiary = ['redOrange','yellowOrange','yellowGreen','blueGreen','bluePurple','redPurple'];
+
+const recipes = {
+  'red|yellow':'orange',
+  'blue|yellow':'green',
+  'blue|red':'purple',
+  'orange|red':'redOrange',
+  'orange|yellow':'yellowOrange',
+  'green|yellow':'yellowGreen',
+  'blue|green':'blueGreen',
+  'blue|purple':'bluePurple',
+  'purple|red':'redPurple'
+};
+
+let visible = new Set(primary);
+let selected = [];
+let locked = false;
+
+const wheel = document.getElementById('wheel');
+const statusEl = document.getElementById('status');
+const formulaEl = document.getElementById('formula');
+const resultEl = document.getElementById('resultText');
+const miniEl = document.getElementById('miniText');
+const tipsEl = document.getElementById('tips');
+const toastEl = document.getElementById('toast');
+
+function getColor(id){ return colors.find(c=>c.id===id); }
+
+function makeWheel(){
+  colors.forEach((c,i)=>{
+    const btn=document.createElement('button');
+    btn.className='node'+(c.light?' light':'');
+    btn.dataset.id=c.id;
+    btn.style.background=c.hex;
+    const angle=(-90 + i*30) * Math.PI/180;
+    btn.dataset.cos=Math.cos(angle);
+    btn.dataset.sin=Math.sin(angle);
+    btn.innerHTML=`<span><span class="zh">${c.zh}</span><span class="en">${c.en}</span></span>`;
+    btn.onclick=()=>selectColor(c.id);
+    wheel.appendChild(btn);
+  });
+  positionNodes();
+  render();
+}
+
+function positionNodes(){
+  const size=wheel.clientWidth;
+  const radius=size*0.39;
+  document.querySelectorAll('.node').forEach(btn=>{
+    btn.style.setProperty('--x', `${Number(btn.dataset.cos)*radius}px`);
+    btn.style.setProperty('--y', `${Number(btn.dataset.sin)*radius}px`);
+  });
+}
+new ResizeObserver(positionNodes).observe(wheel);
+
+function pairKey(a,b){ return [a,b].sort().join('|'); }
+
+function stage(){
+  if(tertiary.every(x=>visible.has(x))) return 3;
+  if(secondary.every(x=>visible.has(x))) return 2;
+  return 1;
+}
+
+function allowedRecipes(){
+  const s=stage();
+  if(s===1) return [
+    ['red','yellow','orange'],['yellow','blue','green'],['blue','red','purple']
+  ].filter(r=>!visible.has(r[2]));
+  if(s===2) return [
+    ['red','orange','redOrange'],
+    ['orange','yellow','yellowOrange'],
+    ['yellow','green','yellowGreen'],
+    ['green','blue','blueGreen'],
+    ['blue','purple','bluePurple'],
+    ['purple','red','redPurple']
+  ].filter(r=>!visible.has(r[2]));
+  return [];
+}
+
+function render(){
+  document.querySelectorAll('.node').forEach(btn=>{
+    btn.classList.toggle('visible', visible.has(btn.dataset.id));
+    btn.classList.toggle('selected', selected.includes(btn.dataset.id));
+  });
+
+  const s=stage();
+  const remaining=allowedRecipes();
+
+  if(s===1){
+    statusEl.innerHTML=`第一步：變出橘、綠、紫<small>用紅、黃、藍兩兩混合</small>`;
+  }else if(s===2){
+    statusEl.innerHTML=`第二步：把 6 色變成 12 色<small>選色環上相鄰的兩個顏色</small>`;
+  }else{
+    statusEl.innerHTML=`完成！你做出了完整 12 色環 🌈<small>每一個新顏色都來自兩個鄰居</small>`;
+  }
+
+  tipsEl.innerHTML='';
+  remaining.forEach(([a,b])=>{
+    const A=getColor(a), B=getColor(b);
+    const tip=document.createElement('div');
+    tip.className='tip';
+    tip.textContent=`${A.zh} ＋ ${B.zh}`;
+    tipsEl.appendChild(tip);
+  });
+  if(!remaining.length){
+    tipsEl.innerHTML='<div class="tip">全部完成 🎉</div>';
+  }
+}
+
+function selectColor(id){
+  if(locked || !visible.has(id)) return;
+
+  if(selected.includes(id)){
+    selected=selected.filter(x=>x!==id);
+    updateCenter();
+    render();
+    return;
+  }
+
+  if(selected.length===2) selected=[];
+  selected.push(id);
+  updateCenter();
+  render();
+
+  if(selected.length===2){
+    setTimeout(checkMix,180);
+  }
+}
+
+function updateCenter(){
+  if(selected.length===0){
+    formulaEl.textContent='點兩個顏色';
+    resultEl.textContent='看看會變出什麼？';
+    miniEl.textContent='一次選兩個';
+  }else if(selected.length===1){
+    const a=getColor(selected[0]);
+    formulaEl.textContent=`${a.zh} ＋ ？`;
+    resultEl.textContent='再選一個顏色';
+    miniEl.textContent='';
+  }else{
+    const a=getColor(selected[0]), b=getColor(selected[1]);
+    formulaEl.textContent=`${a.zh} ＋ ${b.zh}`;
+    resultEl.textContent='混合中…';
+    miniEl.textContent='';
+  }
+}
+
+function checkMix(){
+  const [a,b]=selected;
+  const resultId=recipes[pairKey(a,b)];
+  const valid = resultId && !visible.has(resultId) && isCurrentStageRecipe(a,b,resultId);
+
+  if(valid){
+    createColor(a,b,resultId);
+  }else{
+    const A=getColor(a), B=getColor(b);
+    playError();
+    showToast(`${A.zh}＋${B.zh} 現在不會產生新顏色，再試一組`);
+    resultEl.textContent='再試一次';
+    miniEl.textContent='找找看可以變出新顏色的組合';
+    setTimeout(()=>{
+      selected=[];
+      updateCenter();
+      render();
+    },700);
+  }
+}
+
+function isCurrentStageRecipe(a,b,r){
+  return allowedRecipes().some(x=>pairKey(x[0],x[1])===pairKey(a,b) && x[2]===r);
+}
+
+function createColor(a,b,resultId){
+  locked=true;
+  const A=getColor(a), B=getColor(b), R=getColor(resultId);
+
+  formulaEl.textContent=`${A.zh} ＋ ${B.zh}`;
+  resultEl.textContent=`＝ ${R.zh}！`;
+  miniEl.textContent=`${R.en}`;
+
+  playSuccess();
+  speak(`${A.zh}加${B.zh}，變成${R.zh}`);
+
+  setTimeout(()=>{
+    visible.add(resultId);
+    render();
+    const btn=document.querySelector(`.node[data-id="${resultId}"]`);
+    btn.classList.add('pop');
+    burst(btn);
+    setTimeout(()=>btn.classList.remove('pop'),800);
+  },280);
+
+  setTimeout(()=>{
+    selected=[];
+    locked=false;
+    updateCenter();
+    render();
+
+    if(tertiary.every(x=>visible.has(x))){
+      setTimeout(()=>{
+        playWin();
+        document.getElementById('complete').classList.add('show');
+      },450);
+    }
+  },1000);
+}
+
+function burst(target){
+  const r=target.getBoundingClientRect();
+  const x=r.left+r.width/2, y=r.top+r.height/2;
+  const icons=['✨','⭐','💫','🎨','✨','⭐'];
+  icons.forEach((ic,i)=>{
+    const s=document.createElement('div');
+    s.className='spark';
+    s.textContent=ic;
+    s.style.left=(x-12)+'px';
+    s.style.top=(y-12)+'px';
+    const ang=i*(Math.PI*2/icons.length);
+    s.style.setProperty('--dx',`${Math.cos(ang)*70}px`);
+    s.style.setProperty('--dy',`${Math.sin(ang)*70}px`);
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),850);
+  });
+}
+
+function showToast(msg){
+  toastEl.textContent=msg;
+  toastEl.classList.add('show');
+  clearTimeout(showToast.t);
+  showToast.t=setTimeout(()=>toastEl.classList.remove('show'),1300);
+}
+
+let audioCtx=null;
+function ensureAudio(){
+  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+}
+function tone(freq,dur=.12,type='sine',delay=0){
+  ensureAudio();
+  const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+  o.type=type;o.frequency.value=freq;o.connect(g);g.connect(audioCtx.destination);
+  const t=audioCtx.currentTime+delay;
+  g.gain.setValueAtTime(.18,t);
+  g.gain.exponentialRampToValueAtTime(.001,t+dur);
+  o.start(t);o.stop(t+dur);
+}
+function playSuccess(){tone(523,.1);tone(659,.13,'sine',.11)}
+function playError(){tone(190,.16,'triangle')}
+function playWin(){tone(523,.1);tone(659,.1,'sine',.1);tone(784,.1,'sine',.2);tone(1047,.3,'sine',.3)}
+
+function speak(text){
   if(!('speechSynthesis' in window)) return;
   speechSynthesis.cancel();
-  const z=new SpeechSynthesisUtterance(c.zh); z.lang='zh-TW'; z.rate=.85;
-  const e=new SpeechSynthesisUtterance(c.en); e.lang='en-US'; e.rate=.75;
-  speechSynthesis.speak(z); speechSynthesis.speak(e);
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='zh-TW';u.rate=.82;u.pitch=1.05;
+  speechSynthesis.speak(u);
 }
-function renderColors(){
-  const g=document.querySelector('#colorGrid'), p=document.querySelector('#palette');
-  Object.entries(COLORS).forEach(([k,c])=>{
-    const b=document.createElement('button');
-    b.className='color-btn'; b.style.background=c.hex; b.style.color=c.text;
-    b.innerHTML=`<button class="speak" aria-label="發音">🔊</button><div class="face">●‿●</div><strong>${c.zh}</strong><small>${c.en}</small>`;
-    b.onclick=(ev)=>{ if(ev.target.classList.contains('speak')) ev.stopPropagation(); speakColor(k); };
-    g.appendChild(b);
 
-    if(['red','yellow','blue'].includes(k)){
-      const s=document.createElement('button'); s.className='swatch';
-      s.style.background=c.hex; s.style.color=c.text; s.textContent=c.zh;
-      s.onclick=()=>pickMix(k); p.appendChild(s);
-    }
-  });
+function resetGame(){
+  visible=new Set(primary);
+  selected=[];
+  locked=false;
+  document.getElementById('complete').classList.remove('show');
+  updateCenter();
+  render();
+  showToast('重新從紅、黃、藍開始');
 }
-function slotHTML(key){
-  const c=COLORS[key];
-  return `<div style="width:88%;height:94px;border-radius:22px;background:${c.hex};display:flex;align-items:center;justify-content:center;color:${c.text};font-size:20px;font-weight:900">${c.zh}</div>`;
-}
-function pickMix(key){
-  if(mixPick.length>=2) mixPick=[];
-  mixPick.push(key);
-  document.querySelector('#slotA').innerHTML=mixPick[0]?slotHTML(mixPick[0]):'選第 1 色';
-  document.querySelector('#slotB').innerHTML=mixPick[1]?slotHTML(mixPick[1]):'選第 2 色';
-  const r=document.querySelector('#mixResult');
-  if(mixPick.length===2){
-    const result=MIX[mixPick.join('+')];
-    if(result){
-      const c=COLORS[result]; r.style.background=c.hex;r.style.color=c.text;
-      r.innerHTML=`<div><div style="font-size:28px">✨ ${c.zh}</div><div style="font-size:16px">${c.en}</div></div>`;
-      speakColor(result);
-    }else{
-      r.style.background='#fff';r.style.color='#333';r.textContent='試試不同的兩種顏色';
-    }
-  }else{ r.style.background='#fff';r.style.color='#333';r.textContent='？'; }
-}
-document.querySelector('#resetMix').onclick=()=>{mixPick=[];document.querySelector('#slotA').textContent='選第 1 色';document.querySelector('#slotB').textContent='選第 2 色';const r=document.querySelector('#mixResult');r.textContent='？';r.style.background='#fff';r.style.color='#333'};
+document.getElementById('resetBtn').onclick=resetGame;
 
-const quizPairs=[['red','yellow'],['yellow','blue'],['red','blue']];
-function newQuiz(){
-  document.querySelector('#quizCard').style.display='block';
-  document.querySelector('#feedback').textContent='';
-  const pair=quizPairs[Math.floor(Math.random()*quizPairs.length)];
-  const result=MIX[pair.join('+')];
-  const eq=document.querySelector('#equation');
-  eq.innerHTML=`<div class="dot" style="background:${COLORS[pair[0]].hex}"></div><div class="quiz-op">＋</div><div class="dot" style="background:${COLORS[pair[1]].hex}"></div><div class="quiz-op">＝ ?</div>`;
-  const opts=['orange','green','purple'].sort(()=>Math.random()-.5);
-  const box=document.querySelector('#answers'); box.innerHTML='';
-  opts.forEach(k=>{
-    const b=document.createElement('button'); b.className='answer';
-    b.innerHTML=`<div class="answer-dot" style="background:${COLORS[k].hex}"></div>${COLORS[k].zh}<br><small>${COLORS[k].en}</small>`;
-    b.onclick=()=>{
-      [...box.children].forEach(x=>x.disabled=true);
-      if(k===result){
-        b.classList.add('good'); document.querySelector('#feedback').textContent='答對了！太棒了 🎉';
-        score++; qCount++; document.querySelector('#score').textContent=score;
-        document.querySelector('#progressBar').style.width=(Math.min(qCount,5)/5*100)+'%';
-        speakColor(result); setTimeout(newQuiz,900);
-      }else{
-        b.classList.add('bad');document.querySelector('#feedback').textContent='再想一下：看看兩個顏色混在一起會變什麼？';
-        setTimeout(()=>{[...box.children].forEach(x=>x.disabled=false);b.classList.remove('bad')},600);
-      }
-    }; box.appendChild(b);
-  });
-}
-document.querySelector('#quizBtn').onclick=newQuiz;
-
-const OBJECTS = [
- {e:'🍎',name:'蘋果',c:'red'},{e:'🍓',name:'草莓',c:'red'},
- {e:'🌞',name:'太陽',c:'yellow'},{e:'🍌',name:'香蕉',c:'yellow'},
- {e:'🐳',name:'鯨魚',c:'blue'},{e:'💧',name:'水滴',c:'blue'},
- {e:'🍊',name:'橘子',c:'orange'},{e:'🥕',name:'紅蘿蔔',c:'orange'},
- {e:'🐢',name:'烏龜',c:'green'},{e:'🍀',name:'幸運草',c:'green'},
- {e:'🍇',name:'葡萄',c:'purple'},{e:'☂️',name:'雨傘',c:'purple'}
-];
-function newMatch(){
-  const keys=Object.keys(COLORS);
-  currentMatch=keys[Math.floor(Math.random()*keys.length)];
-  const c=COLORS[currentMatch];
-  document.querySelector('#targetDot').style.background=c.hex;
-  document.querySelector('#targetName').textContent=`${c.zh} ${c.en}`;
-  document.querySelector('#matchFeedback').textContent='';
-  const candidates=[
-    ...OBJECTS.filter(x=>x.c===currentMatch).sort(()=>Math.random()-.5).slice(0,1),
-    ...OBJECTS.filter(x=>x.c!==currentMatch).sort(()=>Math.random()-.5).slice(0,5)
-  ].sort(()=>Math.random()-.5);
-  const box=document.querySelector('#objects');box.innerHTML='';
-  candidates.forEach(o=>{
-    const b=document.createElement('button');b.className='obj';
-    b.innerHTML=`<div class="emoji">${o.e}</div><span>${o.name}</span>`;
-    b.onclick=()=>{
-      if(o.c===currentMatch){
-        b.classList.add('good','done');score++;document.querySelector('#score').textContent=score;
-        document.querySelector('#matchFeedback').textContent='找到了！顏色一樣 🎉';speakColor(currentMatch);
-        setTimeout(newMatch,900);
-      }else{
-        b.classList.add('bad');document.querySelector('#matchFeedback').textContent='這個顏色不一樣，再找找看。';
-        setTimeout(()=>b.classList.remove('bad'),450);
-      }
-    };box.appendChild(b);
-  });
-}
-document.querySelector('#newMatch').onclick=newMatch;
-
-document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
-  document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===t));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelector('#'+t.dataset.tab).classList.add('active');
-});
-renderColors();newMatch();
+makeWheel();
 </script>
 </body>
 </html>
