@@ -88,6 +88,20 @@
     border:2px solid #eee6de;background:#fff;border-radius:999px;padding:8px 11px;
     font-size:13px;font-weight:900;color:#666
   }
+  .reverse-panel{display:none;background:#fff;border:2px solid var(--line);border-radius:32px;box-shadow:var(--shadow);padding:20px 16px;text-align:center}
+  .reverse-panel.show{display:block}
+  .question-label{font-size:15px;font-weight:900;color:var(--muted);letter-spacing:.08em}
+  .target-swatch{width:min(54vw,260px);aspect-ratio:1.45;margin:12px auto;border:7px solid #fff;border-radius:28px;box-shadow:0 12px 28px rgba(0,0,0,.16);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px}
+  .target-name{font-size:clamp(28px,7vw,42px);font-weight:900}
+  .target-hex{font-size:17px;font-weight:900;margin-top:5px}
+  .reverse-question{font-size:clamp(19px,4.8vw,27px);font-weight:900;margin:14px 0 8px}
+  .reverse-progress{color:var(--muted);font-weight:800}
+  .reverse-picked{min-height:34px;margin:14px 0 10px;font-size:20px;font-weight:900}
+  .answer-options{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:620px;margin:auto}
+  .answer-btn{min-height:82px;border:5px solid #fff;border-radius:22px;box-shadow:0 7px 16px rgba(0,0,0,.15);font-weight:900;font-size:18px;cursor:pointer;transition:transform .16s,outline .16s;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.35)}
+  .answer-btn.light{color:#4b443a;text-shadow:none}
+  .answer-btn.selected{outline:5px solid #2f3040;outline-offset:2px;transform:scale(.95)}
+  .answer-btn:disabled{cursor:default}
   .toast{
     position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
     background:#2f3040;color:#fff;padding:12px 18px;border-radius:999px;font-weight:900;
@@ -111,6 +125,9 @@
     .wheel{width:94vw}
     .center{width:35%}
     .node{border-width:4px}
+    .reverse-panel{padding:16px 10px;border-radius:26px}
+    .answer-options{gap:8px}
+    .answer-btn{min-height:72px;font-size:16px;border-width:4px}
   }
 </style>
 </head>
@@ -119,14 +136,14 @@
   <header>
     <div>
       <h1>🎨 我的色彩環</h1>
-      <p class="sub">從紅、黃、藍開始，把色彩一個個變出來。</p>
+      <p class="sub">從紅色、黃色、藍色開始，把色彩一個個變出來。</p>
     </div>
     <button class="reset" id="resetBtn">重新開始</button>
   </header>
 
   <div class="status" id="status">
     先選兩個顏色
-    <small>試試看：紅＋黃、黃＋藍、藍＋紅</small>
+    <small>試試看：紅色＋黃色、黃色＋藍色、藍色＋紅色</small>
   </div>
 
   <section class="wheel-card">
@@ -140,6 +157,18 @@
     </div>
   </section>
 
+  <section class="reverse-panel" id="reversePanel" aria-live="polite">
+    <div class="question-label">進階考題</div>
+    <div class="target-swatch" id="targetSwatch">
+      <div class="target-name" id="targetName"></div>
+      <div class="target-hex" id="targetHex"></div>
+    </div>
+    <div class="reverse-question" id="reverseQuestion"></div>
+    <div class="reverse-progress" id="reverseProgress"></div>
+    <div class="reverse-picked" id="reversePicked">已選：？ ＋ ？</div>
+    <div class="answer-options" id="answerOptions"></div>
+  </section>
+
   <section class="helper">
     <div class="helper-title">怎麼玩？</div>
     <div class="tips" id="tips"></div>
@@ -151,26 +180,26 @@
 <div class="complete" id="complete">
   <div class="complete-box">
     <div style="font-size:58px">🌈</div>
-    <h2>你完成 12 色環了！</h2>
-    <p>從三原色開始，你把所有顏色都找出來了。</p>
+    <h2>🎉 過關！</h2>
+    <p>你完成了色彩大挑戰！</p>
     <button class="again" onclick="resetGame()">再玩一次</button>
   </div>
 </div>
 
 <script>
 const colors = [
-  {id:'red',zh:'紅',en:'Red',hex:'#F44336',light:false},
-  {id:'redOrange',zh:'紅橘',en:'Red Orange',hex:'#F0642F',light:false},
-  {id:'orange',zh:'橘',en:'Orange',hex:'#F7931E',light:false},
-  {id:'yellowOrange',zh:'黃橘',en:'Yellow Orange',hex:'#F7B733',light:true},
-  {id:'yellow',zh:'黃',en:'Yellow',hex:'#FFD93D',light:true},
-  {id:'yellowGreen',zh:'黃綠',en:'Yellow Green',hex:'#A8D64F',light:true},
-  {id:'green',zh:'綠',en:'Green',hex:'#43A047',light:false},
-  {id:'blueGreen',zh:'藍綠',en:'Blue Green',hex:'#18A6A6',light:false},
-  {id:'blue',zh:'藍',en:'Blue',hex:'#3478F6',light:false},
-  {id:'bluePurple',zh:'藍紫',en:'Blue Violet',hex:'#5D5FEF',light:false},
-  {id:'purple',zh:'紫',en:'Violet',hex:'#8E44AD',light:false},
-  {id:'redPurple',zh:'紅紫',en:'Red Violet',hex:'#C4458F',light:false}
+  {id:'red',zh:'紅色',en:'Red',hex:'#FF0000',light:false},
+  {id:'redOrange',zh:'橘紅色',en:'Red Orange',hex:'#FF4500',light:false},
+  {id:'orange',zh:'橙色',en:'Orange',hex:'#FFA500',light:true},
+  {id:'yellowOrange',zh:'黃橙色',en:'Yellow Orange',hex:'#FFC000',light:true},
+  {id:'yellow',zh:'黃色',en:'Yellow',hex:'#FFFF00',light:true},
+  {id:'yellowGreen',zh:'黃綠色',en:'Yellow Green',hex:'#9ACD32',light:true},
+  {id:'green',zh:'綠色',en:'Green',hex:'#008000',light:false},
+  {id:'blueGreen',zh:'藍綠色',en:'Blue Green',hex:'#008080',light:false},
+  {id:'blue',zh:'藍色',en:'Blue',hex:'#0000FF',light:false},
+  {id:'bluePurple',zh:'藍紫色',en:'Blue Violet',hex:'#4B0082',light:false},
+  {id:'purple',zh:'紫色',en:'Violet',hex:'#800080',light:false},
+  {id:'redPurple',zh:'莓紅色',en:'Red Violet',hex:'#D81B60',light:false}
 ];
 
 const primary = ['red','yellow','blue'];
@@ -189,17 +218,45 @@ const recipes = {
   'purple|red':'redPurple'
 };
 
+const PHASES = Object.freeze({
+  BUILD_3_TO_6:'BUILD_3_TO_6', BUILD_6_TO_12:'BUILD_6_TO_12',
+  REVERSE_12_TO_6:'REVERSE_12_TO_6', REVERSE_6_TO_3:'REVERSE_6_TO_3',
+  COMPLETE:'COMPLETE'
+});
+const secondaryRecipes = [
+  ['red','yellow','orange'],['yellow','blue','green'],['blue','red','purple']
+];
+const tertiaryRecipes = [
+  ['red','orange','redOrange'],['orange','yellow','yellowOrange'],
+  ['yellow','green','yellowGreen'],['green','blue','blueGreen'],
+  ['blue','purple','bluePurple'],['purple','red','redPurple']
+];
+
 let visible = new Set(primary);
 let selected = [];
 let locked = false;
+let gamePhase = PHASES.BUILD_3_TO_6;
+let reverseQuestions = [];
+let reverseIndex = 0;
 
 const wheel = document.getElementById('wheel');
 const statusEl = document.getElementById('status');
 const formulaEl = document.getElementById('formula');
 const resultEl = document.getElementById('resultText');
 const miniEl = document.getElementById('miniText');
+const centerEl = document.getElementById('center');
 const tipsEl = document.getElementById('tips');
 const toastEl = document.getElementById('toast');
+const wheelCardEl = document.querySelector('.wheel-card');
+const helperEl = document.querySelector('.helper');
+const reversePanelEl = document.getElementById('reversePanel');
+const targetSwatchEl = document.getElementById('targetSwatch');
+const targetNameEl = document.getElementById('targetName');
+const targetHexEl = document.getElementById('targetHex');
+const reverseQuestionEl = document.getElementById('reverseQuestion');
+const reverseProgressEl = document.getElementById('reverseProgress');
+const reversePickedEl = document.getElementById('reversePicked');
+const answerOptionsEl = document.getElementById('answerOptions');
 
 function getColor(id){ return colors.find(c=>c.id===id); }
 
@@ -232,56 +289,115 @@ new ResizeObserver(positionNodes).observe(wheel);
 
 function pairKey(a,b){ return [a,b].sort().join('|'); }
 
-function stage(){
-  if(tertiary.every(x=>visible.has(x))) return 3;
-  if(secondary.every(x=>visible.has(x))) return 2;
-  return 1;
-}
-
 function allowedRecipes(){
-  const s=stage();
-  if(s===1) return [
-    ['red','yellow','orange'],['yellow','blue','green'],['blue','red','purple']
-  ].filter(r=>!visible.has(r[2]));
-  if(s===2) return [
-    ['red','orange','redOrange'],
-    ['orange','yellow','yellowOrange'],
-    ['yellow','green','yellowGreen'],
-    ['green','blue','blueGreen'],
-    ['blue','purple','bluePurple'],
-    ['purple','red','redPurple']
-  ].filter(r=>!visible.has(r[2]));
+  if(gamePhase===PHASES.BUILD_3_TO_6)
+    return secondaryRecipes.filter(r=>!visible.has(r[2]));
+  if(gamePhase===PHASES.BUILD_6_TO_12)
+    return tertiaryRecipes.filter(r=>!visible.has(r[2]));
   return [];
 }
 
+function isReverse(){
+  return gamePhase===PHASES.REVERSE_12_TO_6 || gamePhase===PHASES.REVERSE_6_TO_3;
+}
+
+function shuffle(items){
+  const copy=items.map(x=>[...x]);
+  for(let i=copy.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [copy[i],copy[j]]=[copy[j],copy[i]];
+  }
+  return copy;
+}
+
+function beginReverse(phase, recipesForPhase){
+  gamePhase=phase;
+  reverseQuestions=shuffle(recipesForPhase);
+  reverseIndex=0;
+  selected=[];
+  locked=false;
+  updateCenter();
+  render();
+}
+
+function currentQuestion(){ return reverseQuestions[reverseIndex] || null; }
+
 function render(){
+  const reverseMode=isReverse();
+  wheelCardEl.style.display=reverseMode ? 'none' : '';
+  helperEl.style.display=reverseMode ? 'none' : '';
+  reversePanelEl.classList.toggle('show',reverseMode);
   document.querySelectorAll('.node').forEach(btn=>{
     btn.classList.toggle('visible', visible.has(btn.dataset.id));
     btn.classList.toggle('selected', selected.includes(btn.dataset.id));
   });
 
-  const s=stage();
   const remaining=allowedRecipes();
 
-  if(s===1){
-    statusEl.innerHTML=`第一步：變出橘、綠、紫<small>用紅、黃、藍兩兩混合</small>`;
-  }else if(s===2){
-    statusEl.innerHTML=`第二步：把 6 色變成 12 色<small>選色環上相鄰的兩個顏色</small>`;
-  }else{
-    statusEl.innerHTML=`完成！你做出了完整 12 色環 🌈<small>每一個新顏色都來自兩個鄰居</small>`;
-  }
+  if(gamePhase===PHASES.BUILD_3_TO_6)
+    statusEl.innerHTML=`第一階段：變出橙色、綠色、紫色<small>用紅色、黃色、藍色兩兩混合</small>`;
+  else if(gamePhase===PHASES.BUILD_6_TO_12)
+    statusEl.innerHTML=`第二階段：把 6 色變成 12 色<small>選色環上相鄰的兩個顏色</small>`;
+  else if(gamePhase===PHASES.REVERSE_12_TO_6)
+    statusEl.innerHTML=`進階挑戰：把顏色拆回去！<small>找出中央目標色的兩個來源色</small>`;
+  else if(gamePhase===PHASES.REVERSE_6_TO_3)
+    statusEl.innerHTML=`繼續拆解：把 6 色變回 3 色<small>找出中央目標色的兩個來源色</small>`;
+  if(reverseMode) renderReverseQuestion();
 
   tipsEl.innerHTML='';
-  remaining.forEach(([a,b])=>{
+  const showAnswers=gamePhase===PHASES.BUILD_3_TO_6 || gamePhase===PHASES.BUILD_6_TO_12;
+  if(showAnswers) remaining.forEach(([a,b])=>{
     const A=getColor(a), B=getColor(b);
     const tip=document.createElement('div');
     tip.className='tip';
     tip.textContent=`${A.zh} ＋ ${B.zh}`;
     tipsEl.appendChild(tip);
   });
-  if(!remaining.length){
-    tipsEl.innerHTML='<div class="tip">全部完成 🎉</div>';
+  if(isReverse()) tipsEl.innerHTML='<div class="tip">選出兩個來源色</div>';
+}
+
+function reverseChoices(){
+  return gamePhase===PHASES.REVERSE_12_TO_6
+    ? ['red','orange','yellow','green','blue','purple']
+    : ['red','yellow','blue'];
+}
+
+function renderReverseQuestion(){
+  const q=currentQuestion();
+  if(!q) return;
+  const target=getColor(q[2]);
+  targetSwatchEl.style.background=target.hex;
+  targetSwatchEl.style.color=target.light ? '#4b443a' : '#fff';
+  targetNameEl.textContent=target.zh;
+  targetHexEl.textContent=target.hex;
+  reverseQuestionEl.textContent=`${target.zh}是由哪兩個顏色混合而成？`;
+  reverseProgressEl.textContent=`第 ${reverseIndex+1} 題／共 ${reverseQuestions.length} 題`;
+  reversePickedEl.textContent=selected.length===0 ? '已選：？ ＋ ？' :
+    selected.length===1 ? `已選：${getColor(selected[0]).zh} ＋ ？` :
+    `已選：${getColor(selected[0]).zh} ＋ ${getColor(selected[1]).zh}`;
+  answerOptionsEl.innerHTML='';
+  reverseChoices().forEach(id=>{
+    const c=getColor(id), btn=document.createElement('button');
+    btn.className='answer-btn'+(c.light?' light':'')+(selected.includes(id)?' selected':'');
+    btn.style.background=c.hex;
+    btn.textContent=c.zh;
+    btn.disabled=locked;
+    btn.onclick=()=>selectReverseColor(id);
+    answerOptionsEl.appendChild(btn);
+  });
+}
+
+function selectReverseColor(id){
+  if(locked || !reverseChoices().includes(id)) return;
+  if(selected.includes(id)){
+    selected=selected.filter(x=>x!==id);
+    renderReverseQuestion();
+    return;
   }
+  if(selected.length>=2) selected=[];
+  selected.push(id);
+  renderReverseQuestion();
+  if(selected.length===2) setTimeout(checkMix,180);
 }
 
 function selectColor(id){
@@ -305,6 +421,21 @@ function selectColor(id){
 }
 
 function updateCenter(){
+  if(isReverse()){
+    const q=currentQuestion();
+    if(!q) return;
+    const target=getColor(q[2]);
+    centerEl.style.background=target.hex;
+    centerEl.style.color=target.light ? '#4b443a' : '#fff';
+    formulaEl.textContent=target.zh;
+    resultEl.textContent=selected.length===0 ? `${target.zh}是由哪兩個顏色變出來的？` :
+      selected.length===1 ? `${getColor(selected[0]).zh} ＋ ？` :
+      `${getColor(selected[0]).zh} ＋ ${getColor(selected[1]).zh}`;
+    miniEl.textContent=`第 ${reverseIndex+1} 題／共 ${reverseQuestions.length} 題`;
+    return;
+  }
+  centerEl.style.background='#fff';
+  centerEl.style.color='';
   if(selected.length===0){
     formulaEl.textContent='點兩個顏色';
     resultEl.textContent='看看會變出什麼？';
@@ -324,6 +455,10 @@ function updateCenter(){
 
 function checkMix(){
   const [a,b]=selected;
+  if(isReverse()){
+    checkReverse(a,b);
+    return;
+  }
   const resultId=recipes[pairKey(a,b)];
   const valid = resultId && !visible.has(resultId) && isCurrentStageRecipe(a,b,resultId);
 
@@ -343,6 +478,41 @@ function checkMix(){
   }
 }
 
+function checkReverse(a,b){
+  const q=currentQuestion();
+  if(q && pairKey(a,b)===pairKey(q[0],q[1])){
+    locked=true;
+    const A=getColor(a), B=getColor(b), R=getColor(q[2]);
+    reversePickedEl.textContent=`答對了！${R.zh}＝${A.zh} ＋ ${B.zh}`;
+    playSuccess();
+    burst(targetSwatchEl);
+    speak(`答對了！${R.zh}，是${A.zh}加${B.zh}。`);
+    setTimeout(()=>{
+      visible.delete(q[2]);
+      selected=[];
+      reverseIndex++;
+      locked=false;
+      if(reverseIndex>=reverseQuestions.length){
+        if(gamePhase===PHASES.REVERSE_12_TO_6){
+          beginReverse(PHASES.REVERSE_6_TO_3,secondaryRecipes);
+        }else{
+          gamePhase=PHASES.COMPLETE;
+          playWin();
+          document.getElementById('complete').classList.add('show');
+        }
+      }else{
+        updateCenter();
+        render();
+      }
+    },900);
+  }else{
+    playError();
+    showToast('再想想看！');
+    reversePickedEl.textContent='再想想看！';
+    setTimeout(()=>{ selected=[]; renderReverseQuestion(); },700);
+  }
+}
+
 function isCurrentStageRecipe(a,b,r){
   return allowedRecipes().some(x=>pairKey(x[0],x[1])===pairKey(a,b) && x[2]===r);
 }
@@ -356,7 +526,7 @@ function createColor(a,b,resultId){
   miniEl.textContent=`${R.en}`;
 
   playSuccess();
-  speak(`${A.zh}加${B.zh}，變成${R.zh}`);
+  speak(`${A.zh}加${B.zh}，變成${R.zh}。`);
 
   setTimeout(()=>{
     visible.add(resultId);
@@ -373,13 +543,20 @@ function createColor(a,b,resultId){
     updateCenter();
     render();
 
-    if(tertiary.every(x=>visible.has(x))){
-      setTimeout(()=>{
-        playWin();
-        document.getElementById('complete').classList.add('show');
-      },450);
-    }
+    advanceAfterBuild();
   },1000);
+}
+
+function advanceAfterBuild(){
+  if(gamePhase===PHASES.BUILD_3_TO_6 && secondary.every(x=>visible.has(x))){
+    gamePhase=PHASES.BUILD_6_TO_12;
+  }else if(gamePhase===PHASES.BUILD_6_TO_12 && tertiary.every(x=>visible.has(x))){
+    showToast('進階挑戰：把顏色拆回去！');
+    beginReverse(PHASES.REVERSE_12_TO_6,tertiaryRecipes);
+    return;
+  }
+  updateCenter();
+  render();
 }
 
 function burst(target){
@@ -437,10 +614,13 @@ function resetGame(){
   visible=new Set(primary);
   selected=[];
   locked=false;
+  gamePhase=PHASES.BUILD_3_TO_6;
+  reverseQuestions=[];
+  reverseIndex=0;
   document.getElementById('complete').classList.remove('show');
   updateCenter();
   render();
-  showToast('重新從紅、黃、藍開始');
+  showToast('重新從紅色、黃色、藍色開始');
 }
 document.getElementById('resetBtn').onclick=resetGame;
 
